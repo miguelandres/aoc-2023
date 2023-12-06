@@ -14,8 +14,7 @@ fun readAocInput(
   part: Int = 1,
 ) = File("input/d${padInputNumber(day)}p${padInputNumber(part)}.txt").readLines()
 
-fun splitWithPrefix(
-  s: String,
+fun String.splitWithPrefix(
   prefix: String,
   delimiter: String,
-) = s.drop(prefix.length).split(delimiter)
+) = this.drop(prefix.length).split(delimiter)
