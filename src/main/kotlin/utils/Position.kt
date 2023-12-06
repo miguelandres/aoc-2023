@@ -4,6 +4,20 @@ import kotlin.math.abs
 
 fun extendRanges(ranges: Iterable<IntRange>) = ranges.minOf { it.first }..ranges.maxOf { it.last }
 
+operator fun <T> List<List<T>>.get(pos: Position): T = this[pos.y][pos.x]
+
+operator fun <T> Array<Array<T>>.get(pos: Position): T = this[pos.y][pos.x]
+
+operator fun <T> Array<Array<T>>.set(pos: Position, value: T) {
+  this[pos.y][pos.x] = value
+}
+
+fun <T> List<List<T>>.range(): Range2D = Range2D(this[0].indices, this.indices)
+fun <T> List<List<T>>.dimensions(): Pair<Int, Int> = this.size to this[0].size
+
+fun <T> Array<Array<T>>.range(): Range2D = Range2D(this[0].indices, this.indices)
+fun <T> Array<Array<T>>.dimensions(): Pair<Int, Int> = this.size to this[0].size
+
 enum class Direction(val deltaX: Int, val deltaY: Int) {
   LEFT(-1, 0),
   RIGHT(1, 0),
@@ -22,6 +36,32 @@ enum class DirectionWithDiagonals(val deltaX: Int, val deltaY: Int) {
   UP(0, 1),
 }
 
+data class Range2D(val rangeX: IntRange, val rangeY: IntRange) {
+  fun forEach(action: (Position) -> Unit) {
+    for (y in rangeY) {
+      for (x in rangeX) {
+        val position = Position(x, y)
+        action(position)
+      }
+    }
+  }
+
+  fun <T> map(transform: (Position) -> T): Iterable<T> {
+    val result = mutableListOf<T>()
+    for (y in rangeY) {
+      for (x in rangeX) {
+        val position = Position(x, y)
+        result.add(transform(position))
+      }
+    }
+    return result
+  }
+
+
+  fun contains(position: Position): Boolean =
+    rangeX.contains(position.x) && rangeY.contains(position.y)
+}
+
 data class Position(val x: Int, val y: Int) {
   fun cartesianLineTo(other: Position): List<Position>? {
     return if (x == other.x) {
@@ -37,11 +77,25 @@ data class Position(val x: Int, val y: Int) {
     }
   }
 
-  fun inRanges(
-    rangeX: IntRange,
-    rangeY: IntRange,
-  ): Boolean {
-    return rangeX.contains(x) && rangeY.contains(y)
+  fun forNeighborsInRange(
+    range: Range2D,
+
+    action: (Position) -> Unit,
+  ) {
+    Direction.entries
+      .map { this + it }
+      .filter { range.contains(it) }
+      .forEach(action)
+  }
+
+  fun forDiagonalNeighborsInRange(
+    range: Range2D,
+    action: (Position) -> Unit,
+  ) {
+    DirectionWithDiagonals.entries
+      .map { this + it }
+      .filter { range.contains(it) }
+      .forEach(action)
   }
 
   fun manhattanDistance(other: Position) = abs(x - other.x) + abs(y - other.y)
@@ -52,20 +106,6 @@ data class Position(val x: Int, val y: Int) {
       val distanceY = distance - abs(deltaX)
       listOf(Position(x + deltaX, y - distanceY), Position(x + deltaX, y + distanceY))
     }.toSet()
-  }
-
-  fun adjustTail(headPosition: Position): Position {
-    val deltaX = headPosition.x - x
-    val deltaY = headPosition.y - y
-    return if (deltaX in -1..1 && deltaY in -1..1) {
-      this
-    } else if (deltaX == 0) {
-      Position(x, y + if (deltaY > 0) 1 else -1)
-    } else if (deltaY == 0) {
-      Position(x + if (deltaX > 0) 1 else -1, y)
-    } else {
-      Position(x + if (deltaX > 0) 1 else -1, y + if (deltaY > 0) 1 else -1)
-    }
   }
 
   operator fun plus(other: Position): Position {
