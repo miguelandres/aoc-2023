@@ -1,7 +1,7 @@
 # Miguel's Advent of Code 2022
 
 Doing this again in Kotlin and using IntelliJ and gradle.kts for build and config
- 
+
 ## Environment Setup on macOS
 
 ```sh

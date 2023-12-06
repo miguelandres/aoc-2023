@@ -21,14 +21,14 @@ repos:
     rev: 2.1.4 # or specific git tag
     hooks:
       - id: forbid-binary
+        exclude: >
+          (?x)^(
+            gradle/wrapper/gradle-wrapper.jar
+          )$
       - id: git-dirty
-  - repo: git@github.com:coyainsurance/pre-commit-scalafmt.git
-    rev: 1.0.1 # you probably do not want to use latest version, but rather pin it to specific commit and update manually
-    hooks:
-    - id: scalafmt
-      args: [ -p9090, -t ] # run in server mode on port 9090 and pass `--test` to scalafmt; alternatively you can place here other supported cmdline arguments
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.7.0
+    rev: v2.11.0
     hooks:
       - id: pretty-format-kotlin
         args: [--autofix]
+        files: ^.*\.kts?$
