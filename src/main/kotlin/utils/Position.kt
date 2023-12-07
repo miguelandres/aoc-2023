@@ -3,6 +3,7 @@ package utils
 import kotlin.math.abs
 
 fun extendRanges(ranges: Iterable<IntRange>) = ranges.minOf { it.first }..ranges.maxOf { it.last }
+
 data class Position(val x: Int, val y: Int) {
   fun cartesianLineTo(other: Position): List<Position>? {
     return if (x == other.x) {
