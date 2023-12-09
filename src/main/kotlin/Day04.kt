@@ -1,8 +1,10 @@
 import utils.readAocInput
 
-data class ScratchCard(val winningNumbers: Set<Int>, val myNumbers: Set<Int>){
+class ScratchCard(val winningNumbers: Set<Int>, val myNumbers: Set<Int>, var copies: Int = 1){
+  fun countWinningNumbers(): Int = winningNumbers.count { myNumbers.contains(it) }
+
   fun calculatePower(): Int {
-    val count = winningNumbers.count { myNumbers.contains(it) }
+    val count = countWinningNumbers()
     return if (count == 0) {
       0
     } else {
@@ -21,12 +23,17 @@ fun main() {
             .map { it.toInt() }.toSet()
         }
         .let { ScratchCard(it[0], it[1]) }
-    }
+    }.toList()
 
   val part1 =
     cards
       .map { it.calculatePower() }
-      .also { println(it) }
       .sum()
+
   println(part1)
+
+  cards.mapIndexed{ index, scratchCard ->
+    (index + 1..index + scratchCard.countWinningNumbers()).forEach { cards[it].copies += scratchCard.copies }
+  }
+  println(cards.sumOf { it.copies })
 }
