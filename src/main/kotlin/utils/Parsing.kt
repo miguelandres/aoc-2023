@@ -18,3 +18,16 @@ fun String.splitWithPrefix(
   prefix: String,
   delimiter: String,
 ) = this.drop(prefix.length).split(delimiter)
+
+fun MutableList<String>.removeLinesUntilBlankOrNull(): List<String> {
+  val result = mutableListOf<String>()
+  var line = this.removeFirstOrNull()
+  while (line != null) {
+    if (line.isEmpty()) {
+      break
+    }
+    result.add(line)
+    line = this.removeFirstOrNull()
+  }
+  return result
+}
